@@ -19,7 +19,9 @@ from supabase import create_client
 load_dotenv()
 IS_VERCEL = "VERCEL" in os.environ
 
-app = Flask(__name__)
+app = Flask(__name__, 
+            template_folder=os.path.abspath('templates'),
+            static_folder=os.path.abspath('static'))
 CORS(app)
 
 # Configuration
@@ -63,6 +65,10 @@ SKILLS_DATABASE = {
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/health')
+def health():
+    return jsonify({"status": "healthy", "ver": "1.0"})
 
 @app.route("/add-user", methods=["POST"])
 def add_user():
@@ -164,7 +170,7 @@ def chat():
     return jsonify({"response": call_huggingface_api(prompt), "success": True})
 
 # Entry point for Vercel
-app = app
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
