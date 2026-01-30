@@ -1,5 +1,5 @@
-Flask
-Flask-CORS
+flask
+flask-cors
 python-dotenv
 PyPDF2
 pdfplumber
@@ -10,3 +10,4 @@ reportlab
 Werkzeug
 typing-extensions
 supabase
+gunicorn
