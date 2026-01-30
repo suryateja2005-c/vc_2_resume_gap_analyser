@@ -2,10 +2,8 @@ flask
 flask-cors
 python-dotenv
 PyPDF2
-pdfplumber
 requests
-huggingface-hub
-python-docx
 reportlab
 supabase
 gunicorn
+werkzeug==2.3.7
