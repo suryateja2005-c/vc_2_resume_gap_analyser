@@ -7,7 +7,5 @@ requests
 huggingface-hub
 python-docx
 reportlab
-Werkzeug
-typing-extensions
 supabase
 gunicorn
