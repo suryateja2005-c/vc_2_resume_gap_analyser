@@ -19,9 +19,12 @@ from supabase import create_client
 load_dotenv()
 IS_VERCEL = "VERCEL" in os.environ
 
+# Get the absolute path to the directory containing this file
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 app = Flask(__name__, 
-            template_folder=os.path.abspath('templates'),
-            static_folder=os.path.abspath('static'))
+            template_folder=os.path.join(BASE_DIR, 'templates'),
+            static_folder=os.path.join(BASE_DIR, 'static'))
 CORS(app)
 
 # Configuration
@@ -170,7 +173,3 @@ def chat():
     return jsonify({"response": call_huggingface_api(prompt), "success": True})
 
 # Entry point for Vercel
-
-
-if __name__ == '__main__':
-    app.run(debug=True, port=5000)
