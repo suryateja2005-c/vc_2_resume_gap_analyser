@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Resume Gap Analyzer - LiveCareer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <!-- Login Page -->
+    <div id="login-container" class="login-page">
+        <div class="login-box">
+            <div class="login-logo">
+                <div class="logo-icon large">📄</div>
+                <h1>ResumeAI</h1>
+            </div>
+            <p class="login-subtitle">Sign in to access your intelligent career assistant</p>
+
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="loginName" placeholder="John Doe">
+            </div>
+
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" id="loginEmail" placeholder="name@company.com" value="user@example.com">
+            </div>
+
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="loginPassword" placeholder="••••••••" value="password">
+            </div>
+
+            <button class="btn-primary" onclick="handleLogin()">Sign In</button>
+            <p class="login-footer">Don't have an account? <a href="#">Create account</a></p>
+        </div>
+    </div>
+
+    <!-- App Container (Hidden by default) -->
+    <div id="app-container" class="app-wrapper hidden">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon">📄</div>
+                <h2>ResumeAI</h2>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="#dashboard" onclick="showPage('dashboard')" class="nav-item active">
+                    <span class="icon">📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#gap-analyzer" onclick="showPage('gapAnalyzer')" class="nav-item">
+                    <span class="icon">🔍</span>
+                    <span>Resume Analysis</span>
+                </a>
+                <a href="#build-resume" onclick="showPage('buildResume')" class="nav-item">
+                    <span class="icon">🏗️</span>
+                    <span>Build Resume</span>
+                </a>
+                <a href="#optimize" onclick="showPage('optimize')" class="nav-item">
+                    <span class="icon">⚡</span>
+                    <span>Optimize Keywords</span>
+                </a>
+                <a href="#ats-score" onclick="showPage('atsScore')" class="nav-item">
+                    <span class="icon">🎯</span>
+                    <span>ATS Score</span>
+                </a>
+                <a href="#improve-bullets" onclick="showPage('improveBullets')" class="nav-item">
+                    <span class="icon">📋</span>
+                    <span>Improve Bullets</span>
+                </a>
+                <a href="#cover-letter" onclick="showPage('coverLetter')" class="nav-item">
+                    <span class="icon">✉️</span>
+                    <span>Cover Letter</span>
+                </a>
+                <a href="#linkedin" onclick="showPage('linkedin')" class="nav-item">
+                    <span class="icon">💡</span>
+                    <span>LinkedIn Optimizer</span>
+                </a>
+                <a href="#settings" onclick="showPage('settings')" class="nav-item">
+                    <span class="icon">⚙️</span>
+                    <span>Settings</span>
+                </a>
+            </nav>
+        </div>
+
+        <div class="main-content">
+            <!-- Dashboard -->
+            <div id="dashboard" class="page active">
+                <div class="header">
+                    <h1>Dashboard</h1>
+                    <p>Welcome to your AI Resume Assistant</p>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="dashboard-card" onclick="showPage('gapAnalyzer')">
+                        <div class="card-icon">🔍</div>
+                        <h3>Resume Gap Analyzer</h3>
+                        <p>Compare your resume with job descriptions and find missing keywords</p>
+                        <button class="btn-card">Analyze</button>
+                    </div>
+
+                    <div class="dashboard-card" onclick="showPage('atsScore')">
+                        <div class="card-icon">🎯</div>
+                        <h3>ATS Compatibility</h3>
+                        <p>Check how well your resume passes ATS systems</p>
+                        <button class="btn-card">Check</button>
+                    </div>
+
+                    <div class="dashboard-card" onclick="showPage('improveBullets')">
+                        <div class="card-icon">📋</div>
+                        <h3>Improve Bullets</h3>
+                        <p>Get AI suggestions to enhance your achievements</p>
+                        <button class="btn-card">Improve</button>
+                    </div>
+
+                    <div class="dashboard-card" onclick="showPage('buildResume')">
+                        <div class="card-icon">🏗️</div>
+                        <h3>Build Resume</h3>
+                        <p>Create a professional resume from scratch</p>
+                        <button class="btn-card">Build</button>
+                    </div>
+
+                    <div class="dashboard-card" style="grid-column: span 2;">
+                        <div class="card-icon">🗄️</div>
+                        <h3>Database Users (Supabase)</h3>
+                        <p>Real-time data from your Supabase table</p>
+                        <div id="userListContainer"
+                            style="margin-top: 15px; text-align: left; max-height: 200px; overflow-y: auto;">
+                            <p style="color: #888;">Log in to see users...</p>
+                        </div>
+                        <button class="btn-card" onclick="fetchUsers()" style="margin-top: 10px;">Refresh List</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resume Gap Analyzer -->
+            <div id="gapAnalyzer" class="page">
+                <div class="header">
+                    <h1>Resume Gap Analyzer</h1>
+                    <p>Upload your resume and paste a job description to see how well they match</p>
+                </div>
+
+                <div class="container">
+                    <div class="two-column">
+                        <div class="column">
+                            <div class="form-group">
+                                <label>Your Resume Text</label>
+                                <textarea id="resumeTextGap" placeholder="Paste your resume text here..."
+                                    rows="12"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="column">
+                            <div class="form-group">
+                                <label>Job Description</label>
+                                <textarea id="jobDescriptionGap" placeholder="Paste the job description here..."
+                                    rows="12"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn-primary" onclick="analyzeGap()">🔍 Analyze Gap</button>
+
+                    <div id="gapResults" class="hidden">
+                        <div class="results-section">
+                            <h2>Analysis Results</h2>
+
+                            <div class="score-display">
+                                <div class="score-circle">
+                                    <span id="compatibilityScore">0</span>%
+                                </div>
+                                <div class="score-info">
+                                    <h3 id="matchStatus">Match Status</h3>
+                                    <p id="matchDescription">Analyzing...</p>
+                                </div>
+                            </div>
+
+                            <div class="two-column">
+                                <div class="column">
+                                    <h3>✅ Matching Keywords</h3>
+                                    <div id="matchingKeywords" class="keyword-list"></div>
+                                </div>
+
+                                <div class="column">
+                                    <h3>❌ Missing Keywords</h3>
+                                    <div id="missingKeywords" class="keyword-list missing"></div>
+                                </div>
+                            </div>
+
+                            <div class="suggestions-box">
+                                <h3>💡 Suggestions</h3>
+                                <ul id="gapSuggestions"></ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ATS Score -->
+            <div id="atsScore" class="page">
+                <div class="header">
+                    <h1>ATS Compatibility Score</h1>
+                    <p>Check how well your resume passes Applicant Tracking Systems</p>
+                </div>
+
+                <div class="container">
+                    <div class="form-group">
+                        <label>Upload Your Resume (PDF)</label>
+                        <input type="file" id="resumeFileATS" accept=".pdf" style="margin-bottom: 15px;">
+                        <p style="text-align: center; margin: 10px 0; font-weight: bold; color: #666;">-- OR --</p>
+                        <label>Paste Your Resume Text</label>
+                        <textarea id="resumeTextATS" placeholder="Paste your resume text here..." rows="10"></textarea>
+                    </div>
+
+                    <button class="btn-primary" onclick="checkATS()">🎯 Check ATS Score</button>
+
+                    <div id="atsResults" class="hidden">
+                        <div class="results-section">
+                            <div class="ats-score">
+                                <div class="score-circle large">
+                                    <span id="atsScoreValue">0</span>/100
+                                </div>
+                                <p id="atsStatus" class="status-text">Analyzing...</p>
+                            </div>
+
+                            <div class="issues-box">
+                                <h3>Issues Found:</h3>
+                                <ul id="atsIssues"></ul>
+                            </div>
+
+                            <div class="recommendations-box">
+                                <h3>✅ Recommendations:</h3>
+                                <ul>
+                                    <li>Use simple formatting (avoid tables, columns, headers)</li>
+                                    <li>Include email and phone number at the top</li>
+                                    <li>Use bullet points for achievements</li>
+                                    <li>Include relevant keywords from job description</li>
+                                    <li>Avoid special symbols and graphics</li>
+                                    <li>Use standard fonts (Arial, Times New Roman)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Improve Bullets -->
+            <div id="improveBullets" class="page">
+                <div class="header">
+                    <h1>Improve Bullets</h1>
+                    <p>Get AI suggestions to enhance your resume achievements</p>
+                </div>
+
+                <div class="container">
+                    <div class="form-group">
+                        <label>Job Description (Optional)</label>
+                        <textarea id="jobDescriptionBullets"
+                            placeholder="Paste job description to get targeted suggestions..." rows="6"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Your Resume Bullets</label>
+                        <div id="bulletsList"></div>
+                        <button class="btn-secondary-small" onclick="addBulletField()">+ Add Another</button>
+                    </div>
+
+                    <button class="btn-primary" onclick="improveBullets()">✨ Improve Bullets</button>
+
+                    <div id="improvedBulletsResult" class="hidden">
+                        <div class="results-section">
+                            <h2>Improved Bullets</h2>
+                            <div id="improvedBulletsList"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Build Resume -->
+            <div id="buildResume" class="page">
+                <div class="header">
+                    <h1>Build Your Resume</h1>
+                    <p>Create a professional resume with AI assistance</p>
+                </div>
+
+                <div class="container">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="fullName" placeholder="John Doe">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="email" placeholder="john@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Phone</label>
+                            <input type="tel" id="phone" placeholder="(123) 456-7890">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Professional Summary</label>
+                        <textarea id="summary" placeholder="Write your professional summary..." rows="4"></textarea>
+                        <button class="btn-ai-small" onclick="generateSummary()">✨ Generate with AI</button>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Skills (comma separated)</label>
+                        <textarea id="skills" placeholder="Python, Project Management, Leadership..."
+                            rows="3"></textarea>
+                    </div>
+
+                    <button class="btn-primary" onclick="downloadResume()">📥 Download PDF</button>
+                </div>
+            </div>
+
+            <!-- Cover Letter -->
+            <div id="coverLetter" class="page">
+                <div class="header">
+                    <h1>Generate Cover Letter</h1>
+                    <p>Create a professional cover letter for your application</p>
+                </div>
+
+                <div class="container">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Company Name</label>
+                            <input type="text" id="companyName" placeholder="ABC Corp">
+                        </div>
+                        <div class="form-group">
+                            <label>Job Title</label>
+                            <input type="text" id="coverLetterJobTitle" placeholder="Software Engineer">
+                        </div>
+                    </div>
+
+                    <button class="btn-primary" onclick="generateCoverLetterText()">✉️ Generate</button>
+
+                    <div id="coverLetterResult" class="hidden">
+                        <textarea id="coverLetterText" placeholder="Your cover letter will appear here..."
+                            rows="15"></textarea>
+                        <button class="btn-primary" onclick="downloadCoverLetter()">📥 Download</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Optimize Keywords -->
+            <div id="optimize" class="page">
+                <div class="header">
+                    <h1>Optimize Keywords</h1>
+                    <p>Find and add missing keywords from job description</p>
+                </div>
+
+                <div class="container">
+                    <div class="form-group">
+                        <label>Job Description</label>
+                        <textarea id="jobDescKeywords" placeholder="Paste job description..." rows="8"></textarea>
+                    </div>
+
+                    <button class="btn-primary" onclick="extractKeywords()">🔑 Extract Keywords</button>
+
+                    <div id="keywordResults" class="hidden">
+                        <h2>Suggested Keywords to Add:</h2>
+                        <div id="keywordsList" class="keyword-list"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LinkedIn Optimizer -->
+            <div id="linkedin" class="page">
+                <div class="header">
+                    <h1>LinkedIn Profile Optimizer</h1>
+                    <p>Optimize your LinkedIn headline and summary</p>
+                </div>
+
+                <div class="container">
+                    <div class="form-group">
+                        <label>Current Headline</label>
+                        <input type="text" id="linkedinHeadline" placeholder="Senior Software Engineer at Tech Company">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Current Summary</label>
+                        <textarea id="linkedinSummary" placeholder="Your LinkedIn summary..." rows="6"></textarea>
+                    </div>
+
+                    <button class="btn-primary" onclick="optimizeLinkedin()">💡 Optimize</button>
+
+                    <div id="linkedinResult" class="hidden">
+                        <h2>Optimized Headline:</h2>
+                        <p id="optimizedHeadline" class="suggestion-box"></p>
+
+                        <h2>Optimized Summary:</h2>
+                        <p id="optimizedSummary" class="suggestion-box"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings -->
+            <div id="settings" class="page">
+                <div class="header">
+                    <h1>Settings</h1>
+                    <p>Manage your preferences</p>
+                </div>
+
+                <div class="container">
+                    <div class="settings-group">
+                        <h3>Display Settings</h3>
+                        <label class="checkbox">
+                            <input type="checkbox" checked>
+                            <span>Show keyboard shortcuts</span>
+                        </label>
+                        <label class="checkbox">
+                            <input type="checkbox" checked>
+                            <span>Dark mode</span>
+                        </label>
+                    </div>
+
+                    <div class="settings-group">
+                        <h3>Notifications</h3>
+                        <label class="checkbox">
+                            <input type="checkbox" checked>
+                            <span>Email notifications</span>
+                        </label>
+                        <label class="checkbox">
+                            <input type="checkbox" checked>
+                            <span>Analysis tips</span>
+                        </label>
+                    </div>
+
+                    <button class="btn-primary" onclick="saveSettings()">💾 Save Settings</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Chat Widget -->
+    <div id="mainChatWidget" class="chat-widget-container hidden">
+        <div id="chatWidget" class="chat-window hidden">
+            <div class="chat-header">
+                <div class="chat-title">
+                    <span>🤖</span> AI Copilot
+                </div>
+                <button class="close-chat" onclick="toggleChat()">×</button>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <div class="message bot">
+                    <p>Hi! I'm your AI Career Copilot. I can help you with resume tips, interview prep, or career
+                        advice. How can I help you today?</p>
+                </div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" id="chatInput" placeholder="Ask me anything..." onkeypress="handleChatInput(event)">
+                <button class="send-btn" onclick="sendChatMessage()">
+                    <span>➤</span>
+                </button>
+            </div>
+        </div>
+        <button class="chat-toggle-btn" onclick="toggleChat()">
+            <span class="icon">🤖</span>
+            <span class="text">Copilot</span>
+        </button>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+
+</html>
