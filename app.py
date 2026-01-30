@@ -24,12 +24,27 @@ app.config['MAX_CONTENT_LENGTH'] = 52428800
 app.config['UPLOAD_FOLDER'] = '/tmp/uploads' if os.environ.get('VERCEL') else 'uploads'
 HF_API_KEY = os.getenv('HF_API_KEY', 'dummy_key')
 
-# Initialize Supabase
+# Initialize Supabase with logging
 url = os.getenv("SUPABASE_URL")
 key = os.getenv("SUPABASE_KEY")
-supabase = create_client(url, key) if url and key else None
+supabase = None
 
-os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+try:
+    if url and key:
+        supabase = create_client(url, key)
+        print("DEBUG: Supabase client initialized successfully.")
+    else:
+        print("WARNING: Supabase URL or Key missing in environment variables.")
+except Exception as e:
+    print(f"ERROR: Failed to initialize Supabase: {str(e)}")
+
+# Safe directory creation
+try:
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+    print(f"DEBUG: Upload folder ready at {app.config['UPLOAD_FOLDER']}")
+except Exception as e:
+    print(f"WARNING: Could not create upload folder: {str(e)}")
+
 
 # Job titles and skills database
 JOB_TITLES = {
@@ -147,6 +162,15 @@ def generate_resume_pdf(profile_data):
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/health')
+def health():
+    return jsonify({
+        "status": "healthy",
+        "supabase_connected": supabase is not None,
+        "env": "vercel" if os.environ.get('VERCEL') else "local"
+    })
+
 
 @app.route("/add-user", methods=["POST"])
 def add_user():
