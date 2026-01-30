@@ -21,7 +21,7 @@ app = Flask(__name__, template_folder='templates', static_folder='static')
 CORS(app)
 
 app.config['MAX_CONTENT_LENGTH'] = 52428800
-app.config['UPLOAD_FOLDER'] = 'uploads'
+app.config['UPLOAD_FOLDER'] = '/tmp/uploads' if os.environ.get('VERCEL') else 'uploads'
 HF_API_KEY = os.getenv('HF_API_KEY', 'dummy_key')
 
 # Initialize Supabase
